@@ -59,7 +59,7 @@ docker run -d \
     -e USE_IPV6="false" \
     -e CHANGE_TTL="true" \
     -e CRONTAB="*/5 * * * *" \
-    ghcr.io/stefomat/dynamic-dns-netcup-api:master \
+    ghcr.io/stefomat/dynamic-dns-netcup-api:master
 ```
 Use the "master" tag for the latest version, that's the GitHub branch from which the Docker images will be built.
 
@@ -75,8 +75,8 @@ services:
     container_name: dynamic-dns-netcup-api
     environment:
       CUSTOMERNR: '12345'
-      APIKEY: 'abcdefghijklmnopqrstuvwxyz'
       APIPASSWORD: 'abcdefghijklmnopqrstuvwxyz'
+      APIKEY: 'abcdefghijklmnopqrstuvwxyz'
       DOMAINLIST: 'myfirstdomain.com: server, dddns; myseconddomain.com: @, *, some-subdomain'
       USE_IPV4: 'true'
       USE_IPV6: 'false'
