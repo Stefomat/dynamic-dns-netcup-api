@@ -1,6 +1,6 @@
-FROM php:8-cli-alpine
+FROM php:8.2.1-cli-alpine3.17
 
-RUN apk add --no-cache tini
+RUN apk add --no-cache tini=0.19.0-r1
 
 COPY ./functions.php /opt/functions.php
 COPY ./update.php /opt/update.php
