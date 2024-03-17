@@ -1,8 +1,8 @@
 <?php
 
-const VERSION = '4.0';
+const VERSION = '5.0';
 const SUCCESS = 'success';
-
+const USERAGENT = "dynamic-dns-netcup-api/" . VERSION ." (by stecklars)";
 
 //Check passed options
 $shortopts = "q4:6:c:vh";
@@ -81,6 +81,7 @@ function initializeCurlHandlerPostNetcupAPI($request)
     $ch = curl_init(APIURL);
     $curlOptions = array(
         CURLOPT_POST => 1,
+        CURLOPT_USERAGENT => USERAGENT,
         CURLOPT_TIMEOUT => 30,
         CURLOPT_RETURNTRANSFER => 1,
         CURLOPT_FAILONERROR => 1,
@@ -96,6 +97,7 @@ function initializeCurlHandlerGetIP($url)
 {
     $ch = curl_init($url);
     $curlOptions = array(
+        CURLOPT_USERAGENT => USERAGENT,
         CURLOPT_TIMEOUT => 30,
         CURLOPT_RETURNTRANSFER => 1,
         CURLOPT_FAILONERROR => 1
@@ -149,8 +151,9 @@ function retryCurlRequest($ch, $tryCount, $tryLimit)
 }
 
 // Sends $request to netcup Domain API and returns the result
-function sendRequest($request)
+function sendRequest($request, $apiSessionRetry = false)
 {
+
     $ch = initializeCurlHandlerPostNetcupAPI($request);
     $result = curl_exec($ch);
 
@@ -168,11 +171,28 @@ function sendRequest($request)
         exit(1);
     }
 
+    $result = json_decode($result, true);
+
+    // Due to a bug in the netcup CCP DNS API, sometimes sessions expire too early (statuscode 4001, error message: "The session id is not in a valid format.")
+    // We work around this bug by trying to login again once.
+    // See Github issue #21.
+    if ($result['statuscode'] === 4001 && $apiSessionRetry === false) {
+        outputWarning("Received API error 4001: The session id is not in a valid format. Most likely the session expired. Logging in again and retrying once.");
+        $newApisessionid = login(CUSTOMERNR, APIKEY, APIPASSWORD);
+
+        global $apisessionid;
+        $apisessionid = $newApisessionid;
+
+        $request = json_decode($request, true);
+        $request['param']['apisessionid'] = $newApisessionid;
+        $request = json_encode($request);
+
+        return sendRequest($request, true);
+    }
+
     // If everything seems to be ok, proceed...
     curl_close($ch);
     unset($ch);
-
-    $result = json_decode($result, true);
 
     return $result;
 }
@@ -277,9 +297,9 @@ function getCurrentPublicIPv4()
         return $providedIPv4;
     }
 
-    outputStdout('Getting IPv4 address from API.');
+    outputStdout('Getting IPv4 address from ' . IPV4_ADDRESS_URL . '.');
 
-    $url = 'https://api.ipify.org';
+    $url = IPV4_ADDRESS_URL;
     $ch = initializeCurlHandlerGetIP($url);
     $publicIP = trim(curl_exec($ch));
 
@@ -292,8 +312,8 @@ function getCurrentPublicIPv4()
         }
 
         if (!isIPV4Valid($publicIP) || $publicIP === false) {
-            outputWarning("https://api.ipify.org didn't return a valid IPv4 address (Try $retryCount / $retryLimit). Trying fallback API https://ipv4.seeip.org");
-            $url = 'https://ipv4.seeip.org';
+            outputWarning(IPV4_ADDRESS_URL . " didn't return a valid IPv4 address (Try $retryCount / $retryLimit). Trying fallback " . IPV4_ADDRESS_URL_FALLBACK);
+            $url = IPV4_ADDRESS_URL_FALLBACK;
             $ch = initializeCurlHandlerGetIP($url);
             $publicIP = trim(curl_exec($ch));
             if (!wasCurlSuccessful($ch) || !isIPV4Valid($publicIP)) {
@@ -324,9 +344,9 @@ function getCurrentPublicIPv6()
         return $providedIPv6;
     }
 
-    outputStdout('Getting IPv6 address from API.');
+    outputStdout('Getting IPv6 address from ' . IPV6_ADDRESS_URL . '.');
 
-    $url = 'https://ipv6.seeip.org';
+    $url = IPV6_ADDRESS_URL;
     $ch = initializeCurlHandlerGetIP($url);
     $publicIP = trim(curl_exec($ch));
 
@@ -339,8 +359,8 @@ function getCurrentPublicIPv6()
         }
 
         if (!isIPV6Valid($publicIP) || $publicIP === false) {
-            outputWarning("https://ipv6.seeip.org didn't return a valid IPv6 address (Try $retryCount / $retryLimit). Trying fallback API https://v6.ident.me/");
-            $url = 'https://v6.ident.me/';
+            outputWarning(IPV6_ADDRESS_URL . " didn't return a valid IPv6 address (Try $retryCount / $retryLimit). Trying fallback " . IPV6_ADDRESS_URL_FALLBACK);
+            $url = IPV6_ADDRESS_URL_FALLBACK;
             $ch = initializeCurlHandlerGetIP($url);
             $publicIP = trim(curl_exec($ch));
             if (!wasCurlSuccessful($ch) || !isIPV6Valid($publicIP)) {
