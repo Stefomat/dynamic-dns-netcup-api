@@ -46,6 +46,10 @@ The container needs a few configuration parameters. These are:
                     Activate this only if you have IPv6 connectivity, or you *WILL* get errors.  
 * `CHANGE_TTL`      - If set to true, this will change TTL to 300 seconds on every run if necessary.  
 * `CRONTAB`         - Optionally you can set your own interval, see [https://crontab.guru/](https://crontab.guru/) for syntax. If you don't set this option, it will run every 5 minutes.  
+* `IPV4_ADDRESS_URL`          - Optionally set your own URL to use to determine the public IPv4 address. Default is https://get-ipv4.steck.cc
+* `IPV4_ADDRESS_URL_FALLBACK` - Optionally set your own URL to use to determine the public IPv4 address. Default is https://4.ipwho.de/ip
+* `IPV6_ADDRESS_URL`          - Optionally set your own URL to use to determine the public IPv6 address. Default is https://get-ipv6.steck.cc
+* `IPV6_ADDRESS_URL_FALLBACK` - Optionally set your own URL to use to determine the public IPv6 address. Default is https://6.ipwho.de/ip
 
 ## Usage
 Start the container with the following `docker run` command:  
@@ -59,6 +63,10 @@ docker run -d \
     -e USE_IPV6="false" \
     -e CHANGE_TTL="true" \
     -e CRONTAB="*/5 * * * *" \
+    -e IPV4_ADDRESS_URL="https://example.com/v4" \
+    -e IPV4_ADDRESS_URL_FALLBACK="https://example.com/v4" \
+    -e IPV6_ADDRESS_URL="https://example.com/v6" \
+    -e IPV6_ADDRESS_URL_FALLBACK="https://example.com/v6" \
     ghcr.io/stefomat/dynamic-dns-netcup-api:master
 ```
 Use the "master" tag for the latest version, that's the GitHub branch from which the Docker images will be built.
@@ -82,6 +90,10 @@ services:
       USE_IPV6: 'false'
       CHANGE_TTL: 'true'
       CRONTAB: '*/5 * * * *'
+      IPV4_ADDRESS_URL: 'https://example.com/v4'
+      IPV4_ADDRESS_URL_FALLBACK: 'https://example.com/v4'
+      IPV6_ADDRESS_URL: 'https://example.com/v6'
+      IPV6_ADDRESS_URL_FALLBACK: 'https://example.com/v6'
     restart: unless-stopped
 ```
 
