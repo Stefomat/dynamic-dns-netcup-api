@@ -25,6 +25,12 @@ define('CHANGE_TTL', ${CHANGE_TTL});
 define('APIURL', 'https://ccp.netcup.net/run/webservice/servers/endpoint.php?JSON');
 EOF
 
+# Add more options to config.php
+echo "define('IPV4_ADDRESS_URL', ${IPV4_ADDRESS_URL:-https://get-ipv4.steck.cc});" > /opt/config.php
+echo "define('IPV4_ADDRESS_URL_FALLBACK', ${IPV4_ADDRESS_URL_FALLBACK:-https://4.ipwho.de/ip});" > /opt/config.php
+echo "define('IPV6_ADDRESS_URL', ${IPV6_ADDRESS_URL:-https://get-ipv6.steck.cc});" > /opt/config.php
+echo "define('IPV6_ADDRESS_URL_FALLBACK', ${IPV6_ADDRESS_URL_FALLBACK:-https://6.ipwho.de/ip});" > /opt/config.php
+
 # Welcome message
 echo "============================================="
 echo " Starting cron..."
