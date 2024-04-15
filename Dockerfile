@@ -1,4 +1,4 @@
-FROM php:8.3.4-cli-alpine3.19
+FROM php:8.3.6-cli-alpine3.19
 
 RUN apk add --no-cache tini=0.19.0-r2
 
