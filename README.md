@@ -1,3 +1,7 @@
+> [!IMPORTANT]
+> This project ist obsolete! The original maintainer of the upstream project has implemented all of the features  
+> that originally prompted this fork. Use the upstream project instead.
+
 # Dynamic DNS client for netcup DNS API
 A simple dynamic DNS client written in PHP for use with the netcup DNS API.
 
